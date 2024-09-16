@@ -12,10 +12,6 @@
   },
   "author": "",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sumansid/chrome-extention-react-typescript-tailwind-starter.git"
-  },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
