@@ -233,13 +233,6 @@ const Popup = () => {
   );
 };
 
-// ReactDOM.render(
-//   <React.StrictMode>
-//     <Popup />
-//   </React.StrictMode>,
-//   document.getElementById("root")
-// );
-
 const popupRootElement = document.getElementById("root") as HTMLElement;
 
 const root = createRoot(popupRootElement);
