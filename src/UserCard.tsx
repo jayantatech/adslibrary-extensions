@@ -220,6 +220,7 @@
 
 import React, { useEffect, useState } from "react";
 import { MdKeyboardArrowDown, MdOutlineArrowForwardIos } from "react-icons/md";
+import { getAccessToken } from "./tokenUtils";
 
 interface UserData {
   name: string;
@@ -236,7 +237,8 @@ const UserCard: React.FC = () => {
   // Fetch user data when the component mounts
   useEffect(() => {
     const fetchUserData = async () => {
-      const accessToken = localStorage.getItem("accessToken");
+      const accessToken = await getAccessToken();
+      console.log("Access token in userCard:", accessToken);
       if (accessToken) {
         try {
           const response = await fetch(
@@ -250,7 +252,9 @@ const UserCard: React.FC = () => {
             }
           );
 
+          console.log("API Response in userCard:", response);
           const data = await response.json();
+          console.log("API Data in userCard:", data);
 
           if (response.ok && data.success) {
             setUserData(data.data);

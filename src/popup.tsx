@@ -10,8 +10,8 @@ import { GrInstagram } from "react-icons/gr";
 import { BsFileText } from "react-icons/bs";
 import UserCard from "./UserCard";
 import { LuKeySquare } from "react-icons/lu";
-// import ActivationCodeComponent from "./ActivationCodeComponent";
 import { IoClose } from "react-icons/io5";
+import { getAccessToken } from "./tokenUtils";
 enum tabEnum {
   Save_ads = "Save_ads",
   Download_Ads = "Download_Ads",
@@ -25,43 +25,26 @@ const Popup = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (accessToken && refreshToken) {
-      setIsAuthenticated(true);
-    }
+    const checkAuth = async () => {
+      const accessToken = await getAccessToken();
+      console.log("Access token for popup:", accessToken);
+
+      if (!accessToken) {
+        setIsAuthenticated(false);
+      } else {
+        setIsAuthenticated(true);
+      }
+    };
+    checkAuth();
   }, []);
 
-  const refreshAccessToken = async () => {
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) return;
-
-    try {
-      const response = await fetch(
-        "http://localhost:4000/api/v1/auth/refresh-token",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ refreshToken }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to refresh token");
-      }
-
-      const data = await response.json();
-      localStorage.setItem("accessToken", data.accessToken);
-      return data.accessToken;
-    } catch (error) {
-      console.error("Error refreshing token:", error);
-      setIsAuthenticated(false);
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-    }
-  };
+  // useEffect(() => {
+  //   refreshToken().then((success) => {
+  //     if (success) {
+  //       console.log("Token refreshed successfully");
+  //     }
+  //   });
+  // }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

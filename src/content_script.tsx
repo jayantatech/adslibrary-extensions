@@ -1,6 +1,8 @@
+// old working code 14/10/2024
 import React from "react";
 import { createRoot } from "react-dom/client";
 import SaveToLibrary, { SelectedFile } from "./SaveToLibrary";
+import { handleSaveAdAPICall } from "./api";
 
 console.log("Script is running on Facebook Ads Library page");
 
@@ -13,6 +15,34 @@ type CardData = {
   adFormat?: "image" | "imageCarousel" | "video" | "videoCarousel";
   selectedFolder?: SelectedFile[]; // New field to store the user-selected folder
 };
+
+//new code start
+// const getTokenFromExtension = (): Promise<string | null> => {
+//   return new Promise((resolve) => {
+//     chrome.runtime.sendMessage({ action: "getToken" }, (response) => {
+//       resolve(response.token);
+//     });
+//   });
+// };
+
+const getTokenFromExtension = (): Promise<string | null> => {
+  return new Promise((resolve) => {
+    try {
+      chrome.runtime.sendMessage({ action: "getToken" }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error("Runtime error:", chrome.runtime.lastError);
+          resolve(null);
+          return;
+        }
+        resolve(response?.token || null);
+      });
+    } catch (error) {
+      console.error("Error getting token:", error);
+      resolve(null);
+    }
+  });
+};
+// new code end
 
 //old code start
 
@@ -49,7 +79,7 @@ const extractCardDetails = (card: Element): CardData | null => {
     cardData.adDescription = "No description available";
   }
 
-  // Extract media URLs and determine ad type
+  // Extract media URLs and  determine ad type
   const mediaUrls: string[] = [];
 
   // Check for single image
@@ -149,17 +179,100 @@ function addCustomElement() {
 }
 
 // Function to handle "Save Ad" button click and store the folder
-const handleSaveAd = (adElement: Element, selectedFolder: SelectedFile[]) => {
-  const adData = extractCardDetails(adElement);
-  if (adData) {
-    adData.selectedFolder = selectedFolder; // Store the selected folder
-    console.log("Ad Data with selected folder:", adData);
-    // You can perform further actions here, such as saving the adData or sending it to a server
-  } else {
-    console.log("No ad data found for this element.");
+// const handleSaveAd = async (
+//   adElement: Element,
+//   selectedFolder: SelectedFile[]
+// ) => {
+//   const adData = extractCardDetails(adElement);
+//   if (adData) {
+//     adData.selectedFolder = selectedFolder; // Store the selected folder
+//     // console.log("the page token:", token);
+
+//     const token = await getTokenFromExtension();
+//     console.log(
+//       "Ad Data with selected folder:",
+//       adData,
+//       "after new  and old token",
+//       token
+//     );
+//     console.log("the page token:", token);
+
+//     if (!token) {
+//       console.error("Token not available, cannot proceed with API call.");
+//       return; // Exit early if token is null
+//     }
+//     const response = handleSaveAdAPICall(
+//       {
+//         platformId: "765b58a7-f277-4969-82e8-c830ac49cea9",
+//         ...adData,
+//       },
+//       token
+//     );
+//     console.log("API Response after saving ad:", response);
+//     // You can perform further actions here, such as saving the adData or sending it to a server
+//   } else {
+//     console.log("No ad data found for this element.");
+//   }
+
+//   // try {
+//   //   // const accessToken = await getAccessToken();
+//   //   // if (!accessToken) {
+//   //   //   console.error("No access token available");
+//   //   //   return;
+//   //   // }
+
+//   //   const response = await fetch(`http://localhost:4000/api/v1/ads/save-ads`, {
+//   //     method: "POST",
+//   //     headers: {
+//   //       "Content-Type": "application/json",
+//   //     },
+//   //     body: JSON.stringify({
+//   //       adsData: adData,
+//   //     }),
+//   //   });
+
+//   //   if (!response.ok) {
+//   //     throw new Error("Failed to save ad data");
+//   //   }
+
+//   //   const result = await response.json();
+//   //   console.log("Ad data saved successfully:", result);
+//   // } catch (error) {
+//   //   console.error("Error saving ad data:", error);
+//   // }
+// };
+const handleSaveAd = async (
+  adElement: Element,
+  selectedFolder: SelectedFile[]
+) => {
+  try {
+    const adData = extractCardDetails(adElement);
+    if (!adData) {
+      console.log("No ad data found for this element.");
+      return;
+    }
+
+    const token = await getTokenFromExtension();
+    if (!token) {
+      console.error("Token not available, cannot proceed with API call.");
+      return;
+    }
+
+    adData.selectedFolder = selectedFolder;
+
+    const response = await handleSaveAdAPICall(
+      {
+        platformId: "765b58a7-f277-4969-82e8-c830ac49cea9",
+        ...adData,
+      },
+      token
+    );
+
+    console.log("API Response after saving ad:", response);
+  } catch (error) {
+    console.error("Error in handleSaveAd:", error);
   }
 };
-
 // Throttled observer callback
 function throttledAddCustomElement() {
   const currentTime = Date.now();
