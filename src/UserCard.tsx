@@ -284,9 +284,10 @@ const UserCard: React.FC = () => {
     }
   }, [isUserMenuCloseTriggered]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    await chrome.runtime.sendMessage({ type: "LOGOUT" });
     setUserData(null);
     setIsUserMenuActive(false);
   };

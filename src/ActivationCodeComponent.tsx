@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { IoClose } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const ActivationCodeComponent = () => {
   const [activationCode, setActivationCode] = useState("");
   const [isActive, setIsActive] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -12,8 +14,9 @@ const ActivationCodeComponent = () => {
   };
   const redirectToActivationKeyPage = () => {
     console.log("Redirecting to activation key page...");
-    window.location.href =
-      "https://adslibrary-alternative.vercel.app/extension-activation-key";
+    navigate(
+      "https://adslibrary-alternative.vercel.app/extension-activation-key"
+    );
   };
   return (
     <div

@@ -38,14 +38,6 @@ const Popup = () => {
     checkAuth();
   }, []);
 
-  // useEffect(() => {
-  //   refreshToken().then((success) => {
-  //     if (success) {
-  //       console.log("Token refreshed successfully");
-  //     }
-  //   });
-  // }, []);
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -102,13 +94,21 @@ const Popup = () => {
     }
   };
 
+  const redirectToActivationKeyPage = () => {
+    console.log("Redirecting to activation key page new one...");
+    window.open(
+      "https://adslibrary-alternative.vercel.app/extension-activation-key",
+      "_blank"
+    );
+  };
+
   return (
     <div className="w-[510px]  min-h-[474px] h-auto px-4 pb-4 -mt-2">
       {/* <div className="w-[510px]  min-h-[474px] h-auto px-4 pb-4 -mt-2"> */}
       <div className="w-full h-auto flex items-center justify-between gap-4">
         <img
           src={
-            "https://adslibrary-alternative.vercel.app/_next/static/media/logoipsum-297.faefabb7.svg"
+            "https://siderite.dev/Posts/files/placeholder.com-logo1_637146769278368505.jpg"
           }
           className="w-[164px] h-full"
           alt="logo"
@@ -181,7 +181,10 @@ const Popup = () => {
             </button>
           </form>
           <div className="mt-2">
-            <button className="w-full px-2 py-1.5 bg-transparent border border-mainBlue font-OpenSans hover:bg-lightBlue hover:text-mainBlue text-[14px] hover:scale-[.98] transition-all duration-150 rounded text-black font-semibold">
+            <button
+              className="w-full px-2 py-1.5 bg-transparent border border-mainBlue font-OpenSans hover:bg-lightBlue hover:text-mainBlue text-[14px] hover:scale-[.98] transition-all duration-150 rounded text-black font-semibold"
+              onClick={() => redirectToActivationKeyPage()}
+            >
               Don't have a code? Get it here
             </button>
           </div>
