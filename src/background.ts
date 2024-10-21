@@ -1,45 +1,56 @@
-// let accessToken: string | null = null;
+// background.ts
+let currentUserId: string | null = null;
+let userIdExpiration: number | null = null;
 
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-//   if (request.action === "getToken") {
-//     // Send response synchronously
-//     sendResponse({ token: accessToken });
-//     return true; // This is important! It tells Chrome to keep the message channel open
-//   }
+// Initialize user ID from storage when background script starts
+const initializeUserId = async () => {
+  const result = await chrome.storage.local.get(["userId", "userIdExpiration"]);
+  console.log("the result is...", result);
 
-//   if (request.action === "setToken") {
-//     accessToken = request.token;
-//     sendResponse({ success: true });
-//     return true;
-//   }
-// });
+  if (result.userId && result.userIdExpiration) {
+    const now = new Date().getTime();
+    if (now < result.userIdExpiration) {
+      currentUserId = result.userId;
+      userIdExpiration = result.userIdExpiration;
+    } else {
+      // Clear expired ID
+      await chrome.storage.local.remove(["userId", "userIdExpiration"]);
+      currentUserId = null;
+      userIdExpiration = null;
+    }
+  }
+};
 
-// // Optional: Handle token expiration
-// chrome.alarms.create("tokenRefresh", { periodInMinutes: 55 }); // Refresh before 1 hour expiry
+// Run initialization
+initializeUserId();
 
-// chrome.alarms.onAlarm.addListener(async (alarm) => {
-//   if (alarm.name === "tokenRefresh") {
-//     // Implement token refresh logic here
-//     try {
-//       const response = await fetch(
-//         "http://localhost:4000/api/v1/auth/extension-refresh-token",
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify({
-//             refreshToken: localStorage.getItem("refreshToken"),
-//           }),
-//         }
-//       );
+// Set up alarm for daily cleanup check
+chrome.alarms.create("cleanupCheck", { periodInMinutes: 1440 }); // Once per day
 
-//       if (response.ok) {
-//         const data = await response.json();
-//         accessToken = data.accessToken;
-//       }
-//     } catch (error) {
-//       console.error("Token refresh failed:", error);
-//     }
-//   }
-// });
+// Listen for the alarm
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "cleanupCheck") {
+    initializeUserId(); // Re-check expiration
+  }
+});
+
+// Listen for messages from popup or content script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "USER_ID_UPDATED") {
+    currentUserId = message.payload.userId;
+    userIdExpiration = message.payload.expiration;
+  }
+
+  if (message.type === "GET_USER_ID") {
+    const now = new Date().getTime();
+    if (userIdExpiration && now < userIdExpiration) {
+      sendResponse({ userId: currentUserId });
+    } else {
+      sendResponse({ userId: null });
+    }
+  }
+
+  return true; // Required for async response
+});
+
+// content_script.tsx

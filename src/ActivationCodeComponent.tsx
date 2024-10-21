@@ -10,7 +10,11 @@ const ActivationCodeComponent = () => {
     // Handle submission logic here
     console.log("Submitted code:", activationCode);
   };
-
+  const redirectToActivationKeyPage = () => {
+    console.log("Redirecting to activation key page...");
+    window.location.href =
+      "https://adslibrary-alternative.vercel.app/extension-activation-key";
+  };
   return (
     <div
       className={`w-full mx-auto flex h-full absolute bg-black bg-opacity-50 top-0 left-0 items-center justify-center z-20 ${
@@ -51,7 +55,10 @@ const ActivationCodeComponent = () => {
           </button>
         </form>
         <div className="mt-2">
-          <button className="w-full px-2 py-1.5 bg-transparent border border-mainBlue font-OpenSans hover:bg-lightBlue hover:text-mainBlue text-[14px] hover:scale-[.98] transition-all duration-150 rounded text-black font-semibold">
+          <button
+            className="w-full px-2 py-1.5 bg-transparent border border-mainBlue font-OpenSans hover:bg-lightBlue hover:text-mainBlue text-[14px] hover:scale-[.98] transition-all duration-150 rounded text-black font-semibold"
+            onClick={redirectToActivationKeyPage}
+          >
             Don't have a code? Get it here
           </button>
         </div>

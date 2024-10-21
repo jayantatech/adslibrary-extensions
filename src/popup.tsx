@@ -70,6 +70,30 @@ const Popup = () => {
       if (data.success && data.data.accessToken && data.data.refreshToken) {
         localStorage.setItem("accessToken", data.data.accessToken);
         localStorage.setItem("refreshToken", data.data.refreshToken);
+
+        //new line start from hear 18/10 1:24 PM ,
+
+        if (data.data.id) {
+          const expirationDate = new Date();
+          expirationDate.setDate(expirationDate.getDate() + 30); // 30 days from now
+
+          await chrome.storage.local.set({
+            userId: data.data.id,
+            userIdExpiration: expirationDate.getTime(),
+          });
+
+          // Notify background script about new ID
+          chrome.runtime.sendMessage({
+            type: "USER_ID_UPDATED",
+            payload: {
+              userId: data.data.id,
+              expiration: expirationDate.getTime(),
+            },
+          });
+        }
+
+        //new line end hear
+
         setIsAuthenticated(true);
         setIsActive(false);
       }

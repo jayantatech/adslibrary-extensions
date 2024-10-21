@@ -286,6 +286,7 @@ const UserCard: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     setUserData(null);
     setIsUserMenuActive(false);
   };
